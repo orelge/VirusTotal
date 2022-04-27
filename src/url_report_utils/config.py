@@ -1,0 +1,2 @@
+
+CLASSIFICATION_COLUMN = 'classification'
