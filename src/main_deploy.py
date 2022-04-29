@@ -11,14 +11,27 @@ from src.url_report_utils.url_report_utils import UrlReportUtils
 
 class MainDeploy:
     def __init__(self, urls_path: str = URLS_CSV_FILE_PATH, db_name: str = DB_NAME,
-                 urls_table_name: str = URLS_CLASSIFICATION_TABLE):
+                 urls_table_name: str = URLS_CLASSIFICATION_TABLE, is_streamlit_deploy: bool = False):
         sql_lite = SqlLiteDataBase().create_db(db_name)
         self.urls_path = urls_path
         self.sql_lite_connection = sql_lite.connection
         self.urls_table_name = urls_table_name
+        self.is_streamlit_deploy = is_streamlit_deploy
 
     def get_urls_list(self) -> List:
-        urls_list = list(pd.read_csv(self.urls_path)[URLS_COLUMN])
+        if not self.is_streamlit_deploy:
+            urls_list = list(pd.read_csv(self.urls_path)[URLS_COLUMN])
+        else:
+            urls_list = ['www.elementor.com',
+                         'www.textspeier.de',
+                         'www.facebook.com',
+                         'www.google.com',
+                         'www.wordpress.org',
+                         'raneevahijab.id',
+                         'boots.fotopyra.pl',
+                         'stackoverflow.com ',
+                         'www.family-partners.fr',
+                         'boots.fotopyra.pl']
         return urls_list
 
     def run(self, return_df=False):
@@ -32,11 +45,11 @@ class MainDeploy:
                                                                                              urls_list)
         final_url_classification_df = pd.DataFrame(urls_classifications_rows,
                                                    columns=[URL_COLUMN, URL_CLASSIFICATION_COLUMN])
-        final_url_classification_df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection,if_exists='replace')
-        final_urls_voting_df.to_sql(VOTING_TABLE, self.sql_lite_connection,if_exists='replace')
-        final_urls_category_df.to_sql(CATEGORIES_TABLE, self.sql_lite_connection,if_exists='replace')
+        final_url_classification_df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection, if_exists='replace')
+        final_urls_voting_df.to_sql(VOTING_TABLE, self.sql_lite_connection, if_exists='replace')
+        final_urls_category_df.to_sql(CATEGORIES_TABLE, self.sql_lite_connection, if_exists='replace')
         if return_df:
-            return final_url_classification_df , final_urls_voting_df , final_urls_category_df
+            return final_url_classification_df, final_urls_voting_df, final_urls_category_df
 
     def iterate_over_urls_and_build_data(self, final_urls_category_df, final_urls_voting_df, urls_classifications_rows,
                                          urls_list):
