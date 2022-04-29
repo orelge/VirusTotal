@@ -1,7 +1,6 @@
 import base64
 from typing import Dict
 
-import pandas as pd
 import requests
 from requests import Response
 
