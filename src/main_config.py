@@ -3,12 +3,11 @@ URLS_COLUMN = 'urls'
 URL_COLUMN = 'url'
 URL_CLASSIFICATION_COLUMN = 'url_classification'
 DB_NAME = 'virus-risk.db'
-URLS_CLASSIFICATION_TABLE = 'urls-classification'
+URLS_CLASSIFICATION_TABLE = 'urls_classification'
 CATEGORIES_TABLE = 'categories'
 VOTING_TABLE = 'voting'
-GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY = f'''
-SELECT *
-FROM {URLS_CLASSIFICATION_TABLE}
+GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY = f'''SELECT *
+FROM 'urls_classification'
 '''
 IS_TABLE_EXIST_QUERY = '''
 SELECT * FROM sqlite_master where type='table';

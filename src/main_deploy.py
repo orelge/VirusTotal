@@ -32,9 +32,9 @@ class MainDeploy:
                                                                                              urls_list)
         final_url_classification_df = pd.DataFrame(urls_classifications_rows,
                                                    columns=[URL_COLUMN, URL_CLASSIFICATION_COLUMN])
-        final_url_classification_df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection)
-        final_urls_voting_df.to_sql(VOTING_TABLE, self.sql_lite_connection)
-        final_urls_category_df.to_sql(CATEGORIES_TABLE, self.sql_lite_connection)
+        final_url_classification_df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection,if_exists='replace')
+        final_urls_voting_df.to_sql(VOTING_TABLE, self.sql_lite_connection,if_exists='replace')
+        final_urls_category_df.to_sql(CATEGORIES_TABLE, self.sql_lite_connection,if_exists='replace')
         if return_df:
             return final_url_classification_df , final_urls_voting_df , final_urls_category_df
 
@@ -77,7 +77,7 @@ class MainDeploy:
             urls_classification_data = pd.read_sql(GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY,
                                                    self.sql_lite_connection)
             is_classification_updated = urls_classification_data[urls_classification_data[URL_COLUMN] == url][
-                                            URL_CLASSIFICATION_COLUMN] == url_risk_classification
+                                            URL_CLASSIFICATION_COLUMN].iloc[0] == url_risk_classification
             return is_classification_updated
 
     def is_table_exist_in_db(self):
@@ -86,4 +86,4 @@ class MainDeploy:
 
 
 if __name__ == '__main__':
-    deploy = MainDeploy().run()
+    deploy = MainDeploy().run(True)
