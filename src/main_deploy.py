@@ -89,6 +89,8 @@ class MainDeploy:
         else:
             urls_classification_data = pd.read_sql(GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY,
                                                    self.sql_lite_connection)
+            if len(urls_classification_data) == 0:
+                return False
             is_classification_updated = urls_classification_data[urls_classification_data[URL_COLUMN] == url][
                                             URL_CLASSIFICATION_COLUMN].iloc[0] == url_risk_classification
             return is_classification_updated
