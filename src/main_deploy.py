@@ -21,7 +21,7 @@ class MainDeploy:
         urls_list = list(pd.read_csv(self.urls_path)[URLS_COLUMN])
         return urls_list
 
-    def run(self):
+    def run(self, return_df=False):
         urls_classifications_rows = []
         final_urls_voting_df = pd.DataFrame(columns=['voting_value', 'voting_count', 'url'])
         final_urls_category_df = pd.DataFrame(columns=['category_value', 'category_count', 'url'])
@@ -35,6 +35,8 @@ class MainDeploy:
         final_url_classification_df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection)
         final_urls_voting_df.to_sql(VOTING_TABLE, self.sql_lite_connection)
         final_urls_category_df.to_sql(CATEGORIES_TABLE, self.sql_lite_connection)
+        if return_df:
+            return final_url_classification_df , final_urls_voting_df , final_urls_category_df
 
     def iterate_over_urls_and_build_data(self, final_urls_category_df, final_urls_voting_df, urls_classifications_rows,
                                          urls_list):
