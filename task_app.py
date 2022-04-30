@@ -11,5 +11,6 @@ task_dfs.append(pd.read_sql(f'''select * from {URLS_CLASSIFICATION_TABLE}''',sql
 task_dfs.append(pd.read_sql(f'''select * from {CATEGORIES_TABLE}''',sql_lite.connection))
 task_dfs.append(pd.read_sql(f'''select * from {VOTING_TABLE}''',sql_lite.connection))
 
-for df in task_dfs:
+for df,title in zip(task_dfs,[URLS_CLASSIFICATION_TABLE,CATEGORIES_TABLE,VOTING_TABLE]):
+    st.title(title)
     st.write(df)
