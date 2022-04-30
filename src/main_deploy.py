@@ -1,10 +1,12 @@
+from datetime import datetime, timedelta
 from typing import List
 
 import pandas as pd
 
 from src.database.sqlite_database import SqlLiteDataBase
 from src.main_config import URLS_COLUMN, URL_COLUMN, URL_CLASSIFICATION_COLUMN, URLS_CLASSIFICATION_TABLE, VOTING_TABLE, \
-    CATEGORIES_TABLE, GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY, IS_TABLE_EXIST_QUERY, DB_NAME, URLS_LIST
+    CATEGORIES_TABLE, GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY, IS_TABLE_EXIST_QUERY, DB_NAME, URLS_LIST, \
+    TABLE_IS_NOT_IN_DB_ERROR_STRING, INSERTION_TIME_COLUMN
 from src.main_config import URLS_CSV_FILE_PATH
 from src.url_report_utils.url_report_utils import UrlReportUtils
 
@@ -35,16 +37,36 @@ class MainDeploy:
                                                                                              urls_classifications_rows,
                                                                                              urls_list)
         final_url_classification_df = pd.DataFrame(urls_classifications_rows,
-                                                   columns=[URL_COLUMN, URL_CLASSIFICATION_COLUMN])
-        final_url_classification_df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection, if_exists='replace')
+                                                   columns=[URL_COLUMN, URL_CLASSIFICATION_COLUMN,
+                                                            INSERTION_TIME_COLUMN])
+        self.insert_and_update_url_classifications_table(final_url_classification_df)
         final_urls_voting_df.to_sql(VOTING_TABLE, self.sql_lite_connection, if_exists='replace')
         final_urls_category_df.to_sql(CATEGORIES_TABLE, self.sql_lite_connection, if_exists='replace')
         if return_df:
             return final_url_classification_df, final_urls_voting_df, final_urls_category_df
 
+    def insert_and_update_url_classifications_table(self, final_url_classification_df):
+        exist_rows = pd.DataFrame(columns=[final_url_classification_df.columns])
+        try:
+            exist_rows = pd.read_sql(GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY,
+                                     self.sql_lite_connection, parse_dates=[INSERTION_TIME_COLUMN])
+            exist_rows = exist_rows[
+                exist_rows[URL_COLUMN].apply(lambda url: url not in list(final_url_classification_df[URL_COLUMN]))]
+        except Exception as e:
+            if str(e) == TABLE_IS_NOT_IN_DB_ERROR_STRING:
+                pass
+        if len(exist_rows) != 0:
+            df = pd.concat([exist_rows, final_url_classification_df])
+            df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection,
+                      if_exists='replace')
+        else:
+            final_url_classification_df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection,
+                                               if_exists='replace')
+
     def iterate_over_urls_and_build_data(self, final_urls_category_df, final_urls_voting_df, urls_classifications_rows,
                                          urls_list):
-        for url in urls_list[:]:
+        un_update_urls_list = self.drop_updated_urls(urls_list.copy())
+        for url in un_update_urls_list[:]:
             url_report_utils = UrlReportUtils(url)
             self.build_url_classification(url, url_report_utils, urls_classifications_rows)
             url_voting_df = self.build_voting_df(url, url_report_utils)
@@ -69,22 +91,37 @@ class MainDeploy:
 
     def build_url_classification(self, url, url_report_utils, urls_classifications_rows):
         url_classification = url_report_utils.get_url_risk_classification()
-        if not self.is_classification_updated(url, url_classification):
-            urls_classifications_rows.append([url, url_classification])
-        else:
-            pass
+        insertion_time = datetime.now()
+        urls_classifications_rows.append([url, url_classification, insertion_time])
 
-    def is_classification_updated(self, url: str, url_risk_classification: str):
-        if not self.is_table_exist_in_db():
+    def drop_updated_urls(self, urls_list: List) -> List:
+        is_classification_updated = None
+        for url in urls_list:
+            try:
+                urls_classification_data = pd.read_sql(GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY,
+                                                       self.sql_lite_connection, parse_dates=[INSERTION_TIME_COLUMN])
+                if len(urls_classification_data) == 0:
+                    pass
+                else:
+                    is_classification_updated = self.check_if_risk_value_is_update(urls_classification_data, url)
+            except Exception as e:
+                if str(e) == TABLE_IS_NOT_IN_DB_ERROR_STRING:
+                    return urls_list
+                else:
+                    ValueError(str(e))
+            if is_classification_updated:
+                urls_list.pop(urls_list.index(url))
+            else:
+                pass
+        return urls_list
+
+    def check_if_risk_value_is_update(self, urls_classification_data, url) -> bool:
+        if len(urls_classification_data[urls_classification_data[URL_COLUMN] == url][
+                   URL_CLASSIFICATION_COLUMN]) == 0:
             return False
         else:
-            urls_classification_data = pd.read_sql(GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY,
-                                                   self.sql_lite_connection)
-            if len(urls_classification_data) == 0:
-                return False
-            is_classification_updated = urls_classification_data[urls_classification_data[URL_COLUMN] == url][
-                                            URL_CLASSIFICATION_COLUMN].iloc[0] == url_risk_classification
-            return is_classification_updated
+            return urls_classification_data[urls_classification_data[URL_COLUMN] == url][
+                       INSERTION_TIME_COLUMN].iloc[0] >= datetime.now() - timedelta(minutes=30)
 
     def is_table_exist_in_db(self):
         tables_list = list(pd.read_sql(IS_TABLE_EXIST_QUERY, self.sql_lite_connection)['tbl_name'])

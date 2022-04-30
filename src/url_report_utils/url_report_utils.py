@@ -1,14 +1,18 @@
 import pandas as pd
 
+from src.main_config import LOCAL_REPORT
 from src.virus_total.virus_total import VirusTotal
 
 
 class UrlReportUtils:
 
-    def __init__(self, url: str):
+    def __init__(self, url: str, get_local_report=True):
         self.url = url
         self.virus_total = VirusTotal()
-        self.url_report = self.virus_total.get_url_analysis_report(self.url)
+        if get_local_report:
+            self.url_report = LOCAL_REPORT
+        else:
+            self.url_report = self.virus_total.get_url_analysis_report(self.url)
 
     def get_url_risk_classification(self) -> str:
         results = []
@@ -38,5 +42,5 @@ class UrlReportUtils:
         for key in self.url_report['data']['attributes']['categories'].keys():
             categories_list.append(categories[key])
         categories = pd.Series(categories_list)
-        categories_df = pd.DataFrame(categories.value_counts(), columns=['voting_count'])
+        categories_df = pd.DataFrame(categories.value_counts(), columns=['category_count'])
         return categories_df
