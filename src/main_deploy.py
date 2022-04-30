@@ -65,7 +65,7 @@ class MainDeploy:
 
     def iterate_over_urls_and_build_data(self, final_urls_category_df, final_urls_voting_df, urls_classifications_rows,
                                          urls_list):
-        un_update_urls_list = self.drop_updated_urls(urls_list.copy())
+        un_update_urls_list = self.drop_updated_urls(urls_list)
         for url in un_update_urls_list[:]:
             url_report_utils = UrlReportUtils(url,False)
             self.build_url_classification(url, url_report_utils, urls_classifications_rows)
@@ -95,25 +95,24 @@ class MainDeploy:
         urls_classifications_rows.append([url, url_classification, insertion_time])
 
     def drop_updated_urls(self, urls_list: List) -> List:
-        is_classification_updated = None
+        new_list = []
+        try:
+            urls_classification_data = pd.read_sql(GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY,
+                                                   self.sql_lite_connection, parse_dates=[INSERTION_TIME_COLUMN])
+            if len(urls_classification_data) == 0:
+                return urls_list
+        except Exception as e:
+            if str(e) == TABLE_IS_NOT_IN_DB_ERROR_STRING:
+                return urls_list
+            else:
+                ValueError(str(e))
         for url in urls_list:
-            try:
-                urls_classification_data = pd.read_sql(GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY,
-                                                       self.sql_lite_connection, parse_dates=[INSERTION_TIME_COLUMN])
-                if len(urls_classification_data) == 0:
-                    pass
-                else:
-                    is_classification_updated = self.check_if_risk_value_is_update(urls_classification_data, url)
-            except Exception as e:
-                if str(e) == TABLE_IS_NOT_IN_DB_ERROR_STRING:
-                    return urls_list
-                else:
-                    ValueError(str(e))
-            if is_classification_updated:
-                urls_list.pop(urls_list.index(url))
+            is_classification_updated = self.check_if_risk_value_is_update(urls_classification_data, url)
+            if not is_classification_updated:
+                new_list.append(urls_list.index(url))
             else:
                 pass
-        return urls_list
+        return new_list
 
     def check_if_risk_value_is_update(self, urls_classification_data, url) -> bool:
         if len(urls_classification_data[urls_classification_data[URL_COLUMN] == url][
