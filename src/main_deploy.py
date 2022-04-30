@@ -56,7 +56,7 @@ class MainDeploy:
             if str(e) == TABLE_IS_NOT_IN_DB_ERROR_STRING:
                 pass
         if len(exist_rows) != 0:
-            df = pd.concat([exist_rows, final_url_classification_df])
+            df = pd.concat([exist_rows[[URL_COLUMN,URL_CLASSIFICATION_COLUMN,INSERTION_TIME_COLUMN]], final_url_classification_df])
             df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection,
                       if_exists='replace')
         else:
@@ -67,7 +67,7 @@ class MainDeploy:
                                          urls_list):
         un_update_urls_list = self.drop_updated_urls(urls_list.copy())
         for url in un_update_urls_list[:]:
-            url_report_utils = UrlReportUtils(url)
+            url_report_utils = UrlReportUtils(url,False)
             self.build_url_classification(url, url_report_utils, urls_classifications_rows)
             url_voting_df = self.build_voting_df(url, url_report_utils)
             url_categories_df = self.build_category_df(url, url_report_utils)
