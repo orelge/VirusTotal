@@ -5,7 +5,7 @@ from src.main_config import DB_NAME, URLS_CLASSIFICATION_TABLE , CATEGORIES_TABL
 from src.main_deploy import MainDeploy
 
 task_dfs = []
-MainDeploy().run()
+MainDeploy(is_streamlit_deploy=True).run()
 sql_lite = SqlLiteDataBase().create_db(DB_NAME)
 task_dfs.append(pd.read_sql(f'''select * from {URLS_CLASSIFICATION_TABLE}''',sql_lite.connection))
 task_dfs.append(pd.read_sql(f'''select * from {CATEGORIES_TABLE}''',sql_lite.connection))
