@@ -23,7 +23,8 @@ URLS_LIST = ['www.elementor.com',
              'boots.fotopyra.pl',
              'stackoverflow.com ',
              'www.family-partners.fr',
-             'boots.fotopyra.pl']
+             'boots.fotopyra.pl',
+             'fourthgate.org/Yryzvt']
 TABLE_IS_NOT_IN_DB_ERROR_STRING = """Execution failed on sql 'SELECT *
 FROM 'urls_classification'
 ': no such table: urls_classification"""
