@@ -4,7 +4,7 @@ import pandas as pd
 
 from src.database.sqlite_database import SqlLiteDataBase
 from src.main_config import URLS_COLUMN, URL_COLUMN, URL_CLASSIFICATION_COLUMN, URLS_CLASSIFICATION_TABLE, VOTING_TABLE, \
-    CATEGORIES_TABLE, GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY, IS_TABLE_EXIST_QUERY, DB_NAME
+    CATEGORIES_TABLE, GET_DATA_FROM_URLS_CLASSIFICATION_TABLE_QUERY, IS_TABLE_EXIST_QUERY, DB_NAME, URLS_LIST
 from src.main_config import URLS_CSV_FILE_PATH
 from src.url_report_utils.url_report_utils import UrlReportUtils
 
@@ -22,16 +22,7 @@ class MainDeploy:
         if not self.is_streamlit_deploy:
             urls_list = list(pd.read_csv(self.urls_path)[URLS_COLUMN])
         else:
-            urls_list = ['www.elementor.com',
-                         'www.textspeier.de',
-                         'www.facebook.com',
-                         'www.google.com',
-                         'www.wordpress.org',
-                         'raneevahijab.id',
-                         'boots.fotopyra.pl',
-                         'stackoverflow.com ',
-                         'www.family-partners.fr',
-                         'boots.fotopyra.pl']
+            urls_list = URLS_LIST
         return urls_list
 
     def run(self, return_df=False):

@@ -12,3 +12,14 @@ FROM 'urls_classification'
 IS_TABLE_EXIST_QUERY = '''
 SELECT * FROM sqlite_master where type='table';
 '''
+
+URLS_LIST = ['www.elementor.com',
+                         'www.textspeier.de',
+                         'www.facebook.com',
+                         'www.google.com',
+                         'www.wordpress.org',
+                         'raneevahijab.id',
+                         'boots.fotopyra.pl',
+                         'stackoverflow.com ',
+                         'www.family-partners.fr',
+                         'boots.fotopyra.pl']
