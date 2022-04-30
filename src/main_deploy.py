@@ -14,7 +14,7 @@ from src.url_report_utils.url_report_utils import UrlReportUtils
 class MainDeploy:
     def __init__(self, urls_path: str = URLS_CSV_FILE_PATH, db_name: str = DB_NAME,
                  urls_table_name: str = URLS_CLASSIFICATION_TABLE, is_streamlit_deploy: bool = False):
-        sql_lite = SqlLiteDataBase().create_db(db_name)
+        sql_lite = SqlLiteDataBase().connect_db(db_name)
         self.urls_path = urls_path
         self.sql_lite_connection = sql_lite.connection
         self.urls_table_name = urls_table_name

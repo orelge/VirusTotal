@@ -7,7 +7,7 @@ class SqlLiteDataBase:
         self.db_name = None
         self.connection = None
 
-    def create_db(self, db_name: str):
+    def connect_db(self, db_name: str):
         self.db_name = db_name
         self.connection = sl.connect(db_name)
         return self
