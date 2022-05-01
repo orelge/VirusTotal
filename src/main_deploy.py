@@ -128,4 +128,5 @@ class MainDeploy:
 
 
 if __name__ == '__main__':
-    deploy = MainDeploy().run(True)
+    df = deploy = MainDeploy().run(True)
+    df
