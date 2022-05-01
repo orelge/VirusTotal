@@ -109,7 +109,7 @@ class MainDeploy:
         for url in urls_list:
             is_classification_updated = self.check_if_risk_value_is_update(urls_classification_data, url)
             if not is_classification_updated:
-                new_list.append(urls_list.index(url))
+                new_list.append(url)
             else:
                 pass
         return new_list
