@@ -48,9 +48,9 @@ class MainDeploy:
     def return_tables_from_db(self):
         task_dfs = []
         task_dfs.append(
-            pd.read_sql(f'''select * from {URLS_CLASSIFICATION_TABLE}''', self.sql_lite_connection.connection))
-        task_dfs.append(pd.read_sql(f'''select * from {CATEGORIES_TABLE}''', self.sql_lite_connection.connection))
-        task_dfs.append(pd.read_sql(f'''select * from {VOTING_TABLE}''', self.sql_lite_connection.connection))
+            pd.read_sql(f'''select * from {URLS_CLASSIFICATION_TABLE}''', self.sql_lite_connection))
+        task_dfs.append(pd.read_sql(f'''select * from {CATEGORIES_TABLE}''', self.sql_lite_connection))
+        task_dfs.append(pd.read_sql(f'''select * from {VOTING_TABLE}''', self.sql_lite_connection))
         return task_dfs
 
     def insert_and_update_url_classifications_table(self, final_url_classification_df):
