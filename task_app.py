@@ -1,5 +1,5 @@
 import streamlit as st
-
+import pandas as pd
 from src.database.sqlite_database import SqlLiteDataBase
 from src.main_config import DB_NAME, URLS_CLASSIFICATION_TABLE, CATEGORIES_TABLE, VOTING_TABLE
 from src.main_deploy import MainDeploy
