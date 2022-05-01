@@ -14,12 +14,12 @@ for df, title in zip(task_dfs, [URLS_CLASSIFICATION_TABLE, CATEGORIES_TABLE, VOT
     st.title(title)
     st.write(df)
 
-if __name__ == '__main__':
-    task_dfs = MainDeploy(is_streamlit_deploy=True).run(return_df=True)
-    # task_dfs.append(pd.read_sql(f'''select * from {URLS_CLASSIFICATION_TABLE}''',sql_lite.connection))
-    # task_dfs.append(pd.read_sql(f'''select * from {CATEGORIES_TABLE}''',sql_lite.connection))
-    # task_dfs.append(pd.read_sql(f'''select * from {VOTING_TABLE}''',sql_lite.connection))
-
-    for df, title in zip(task_dfs, [URLS_CLASSIFICATION_TABLE, CATEGORIES_TABLE, VOTING_TABLE]):
-        st.title(title)
-        st.write(df)
+# if __name__ == '__main__':
+#     task_dfs = MainDeploy(is_streamlit_deploy=True).run(return_df=True)
+#     # task_dfs.append(pd.read_sql(f'''select * from {URLS_CLASSIFICATION_TABLE}''',sql_lite.connection))
+#     # task_dfs.append(pd.read_sql(f'''select * from {CATEGORIES_TABLE}''',sql_lite.connection))
+#     # task_dfs.append(pd.read_sql(f'''select * from {VOTING_TABLE}''',sql_lite.connection))
+#
+#     for df, title in zip(task_dfs, [URLS_CLASSIFICATION_TABLE, CATEGORIES_TABLE, VOTING_TABLE]):
+#         st.title(title)
+#         st.write(df)
