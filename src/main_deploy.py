@@ -43,7 +43,15 @@ class MainDeploy:
         final_urls_voting_df.to_sql(VOTING_TABLE, self.sql_lite_connection, if_exists='replace')
         final_urls_category_df.to_sql(CATEGORIES_TABLE, self.sql_lite_connection, if_exists='replace')
         if return_df:
-            return final_url_classification_df, final_urls_voting_df, final_urls_category_df
+            return self.return_tables_from_db()
+
+    def return_tables_from_db(self):
+        task_dfs = []
+        task_dfs.append(
+            pd.read_sql(f'''select * from {URLS_CLASSIFICATION_TABLE}''', self.sql_lite_connection.connection))
+        task_dfs.append(pd.read_sql(f'''select * from {CATEGORIES_TABLE}''', self.sql_lite_connection.connection))
+        task_dfs.append(pd.read_sql(f'''select * from {VOTING_TABLE}''', self.sql_lite_connection.connection))
+        return task_dfs
 
     def insert_and_update_url_classifications_table(self, final_url_classification_df):
         exist_rows = pd.DataFrame(columns=[final_url_classification_df.columns])
@@ -56,7 +64,8 @@ class MainDeploy:
             if str(e) == TABLE_IS_NOT_IN_DB_ERROR_STRING:
                 pass
         if len(exist_rows) != 0:
-            df = pd.concat([exist_rows[[URL_COLUMN,URL_CLASSIFICATION_COLUMN,INSERTION_TIME_COLUMN]], final_url_classification_df])
+            df = pd.concat([exist_rows[[URL_COLUMN, URL_CLASSIFICATION_COLUMN, INSERTION_TIME_COLUMN]],
+                            final_url_classification_df])
             df.to_sql(URLS_CLASSIFICATION_TABLE, self.sql_lite_connection,
                       if_exists='replace')
         else:
@@ -67,7 +76,7 @@ class MainDeploy:
                                          urls_list):
         un_update_urls_list = self.drop_updated_urls(urls_list)
         for url in un_update_urls_list[:]:
-            url_report_utils = UrlReportUtils(url,False)
+            url_report_utils = UrlReportUtils(url, False)
             self.build_url_classification(url, url_report_utils, urls_classifications_rows)
             url_voting_df = self.build_voting_df(url, url_report_utils)
             url_categories_df = self.build_category_df(url, url_report_utils)
